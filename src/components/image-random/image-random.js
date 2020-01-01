@@ -1,33 +1,28 @@
 import React, { Component } from 'react';
 import ErrorBoundary from '../error-boundary';
 import CreateError from '../create-error';
-import withErrorContext from '../hoc-helper/with-error-context';
 import Spinner from '../Spinner';
+import { connect } from 'react-redux';
+import { imageLoaded, imageRequested, imageError } from '../../actions';
 
 
 class ImageRandom extends Component {
-  state = {
-    loading: false,
-    error: false
-  }
   UNSAFE_componentWillUpdate(prevProps) {
-    if (this.props.urlImage !== prevProps.urlImage) {
-      this.setState({ loading: true, error: false })
+    if (this.props.url !== prevProps.url) {
+      this.props.imageRequested()
     }
   }
   handleImageLoaded = () => {
-    this.setState({ loading: false, error: false })
+    this.props.imageLoaded()
   }
   handleImageError = (err) => {
-    console.log(err)
-    this.setState({ loading: false, error: true })
+    this.props.imageError()
   }
   render() {
-    const { urlImage, state } = this.props;
-    const { loading, error } = this.state;
+    const { url, state, loading, error } = this.props;
     const errorMessage = error ? `Картинка не загрузилась, выберите другую.` : null;
-    const spinner = loading && urlImage ? <Spinner /> : null;
-    const chooseCategory = urlImage ? null : 'Выберите категорию';
+    const spinner = loading && url ? <Spinner /> : null;
+    const chooseCategory = url ? null : 'Выберите категорию';
     const imageVisible = !loading ? 'image-random__image-visible' : null
     return (
       <ErrorBoundary>
@@ -35,16 +30,25 @@ class ImageRandom extends Component {
           {errorMessage}
           {spinner}
           {chooseCategory}
-          {(urlImage && !error) && <img ref="img"
+          {(url && !error) && <img ref="img"
             onLoad={this.handleImageLoaded}
             onError={this.handleImageError}
             className={`image-random__image ${imageVisible}`}
-            src={`${urlImage}`} alt={urlImage} />}
+            src={`${url}`} alt={url} />}
           <CreateError state={state} />
         </div>
       </ErrorBoundary>
     )
   }
 }
-
-export default withErrorContext(ImageRandom);
+const mapStateToProps = ({ url, loading, error }) => {
+  return {
+    url, loading, error
+  }
+}
+const mapDispatchToProps = {
+  imageLoaded,
+  imageRequested,
+  imageError
+}
+export default connect(mapStateToProps, mapDispatchToProps)(ImageRandom)

@@ -7,10 +7,6 @@ export default class RandomPicture {
     const image = await this.getResources('https://random.dog/woof.json');
     return this._transformToImage(await image.json(), 'url');
   }
-  getRandomCat = async () => {
-    const image = await this.getResources('https://aws.random.cat/meow');
-    return this._transformToImage(await image.json(), 'file');
-  }
   getRandomGrayscale = async () => {
     const image = await this.getResources('https://picsum.photos/500/500?grayscale');
     return this._transformToImage(image, 'url');
